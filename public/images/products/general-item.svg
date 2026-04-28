@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="General product">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f5f7fa"/>
+      <stop offset="100%" stop-color="#e6edf4"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" rx="64" fill="url(#bg)"/>
+  <rect x="220" y="250" width="360" height="260" rx="34" fill="#95a5a6"/>
+  <path d="M250 310h300M250 370h300M250 430h180" stroke="#ecf0f1" stroke-width="18" stroke-linecap="round"/>
+  <text x="400" y="705" text-anchor="middle" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="#566573">General Item</text>
+</svg>

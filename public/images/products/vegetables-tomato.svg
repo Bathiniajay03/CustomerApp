@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Tomato">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f1fff1"/>
+      <stop offset="100%" stop-color="#d6f7d6"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" rx="64" fill="url(#bg)"/>
+  <circle cx="400" cy="420" r="170" fill="#e74c3c"/>
+  <path d="M400 250c40 20 70 54 80 96-30-16-52-18-80-18s-50 2-80 18c10-42 40-76 80-96z" fill="#2ecc71"/>
+  <path d="M400 240l18 70-18-18-18 18z" fill="#27ae60"/>
+  <text x="400" y="705" text-anchor="middle" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="#2c7a2c">Fresh Tomato</text>
+</svg>

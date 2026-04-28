@@ -1,21 +1,46 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getProductImageUrl } from '../utils/productImages';
 import './ProductCard.css';
 
 const ProductCard = ({ product, onAddToCart }) => {
+  const navigate = useNavigate();
+
+  const openDetails = () => {
+    navigate(`/product/${product.id}`);
+  };
+
   const handleAddToCart = () => {
-    if (onAddToCart && product.inStock) {
+    if (product.inStock && onAddToCart) {
       onAddToCart(product.id, 1);
     }
   };
 
+  const handleCardKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openDetails();
+    }
+  };
+
+  const stopAndAdd = (event) => {
+    event.stopPropagation();
+    if (onAddToCart && product.inStock) {
+      handleAddToCart();
+    }
+  };
+
   return (
-    <div className="product-card">
+    <div
+      className="product-card"
+      role="button"
+      tabIndex={0}
+      onClick={openDetails}
+      onKeyDown={handleCardKeyDown}
+      aria-label={`Open details for ${product.description}`}
+    >
       <div className="product-image">
-        {product.imageUrl ? (
-          <img src={product.imageUrl} alt={product.description} />
-        ) : (
-          <div className="no-image">No Image</div>
-        )}
+        <img src={getProductImageUrl(product)} alt={product.description} />
       </div>
       
       <div className="product-info">
@@ -42,13 +67,24 @@ const ProductCard = ({ product, onAddToCart }) => {
           </div>
         </div>
         
-        <button 
-          className="add-to-cart-btn"
-          onClick={handleAddToCart}
+        <div className="product-actions">
+          <button
+            className="view-details-btn"
+            onClick={(event) => {
+              event.stopPropagation();
+              openDetails();
+            }}
+          >
+            View Details
+          </button>
+          <button
+            className="add-to-cart-btn"
+            onClick={stopAndAdd}
           disabled={!product.inStock}
-        >
-          {product.inStock ? 'Add to Cart' : 'Out of Stock'}
-        </button>
+          >
+            {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+          </button>
+        </div>
       </div>
     </div>
   );
