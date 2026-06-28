@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import './CartPage.css';
 
 const CheckoutPage = ({ customerId }) => {
-  const { cartItems, cartTotal, clearCart } = useCart(customerId);
+  const { cartItems, cartTotal, refreshCart } = useCart(customerId);
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
   const [formData, setFormData] = React.useState({
@@ -29,7 +29,7 @@ const CheckoutPage = ({ customerId }) => {
       console.log('Cart items structure:', cartItems[0]);
 
       await ordersApi.placeOrder(Number(customerId), items);
-      await clearCart();
+      await refreshCart();
       alert('Order placed successfully!');
       navigate('/orders');
     } catch (error) {

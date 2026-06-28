@@ -147,6 +147,14 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('customer_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // -------------------- PRODUCTS API --------------------
 export const productsApi = {
   getAll: (search = '', category = '') =>
@@ -165,6 +173,12 @@ export const productsApi = {
 
 // -------------------- CUSTOMERS API --------------------
 export const customersApi = {
+  requestOtp: (email) =>
+    api.post('/public/customers/request-otp', { email }),
+    
+  verifyOtp: (email, otp) =>
+    api.post('/public/customers/verify-otp', { email, otp }),
+
   register: (data) =>
     api.post('/public/customers/register', data),
 

@@ -5,16 +5,26 @@ import ProductDetailsPage from './pages/ProductDetailsPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
+import LoginPage from './pages/LoginPage';
 import { useCart } from './hooks/useCart';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './App.css';
 
-// Demo customer ID - in production this would come from authentication
-const DEMO_CUSTOMER_ID = 1;
-
-function App() {
-  const [customerId] = useState(DEMO_CUSTOMER_ID);
+function AppContent() {
+  const { customer, loading, logout } = useAuth();
   const [cartMessage, setCartMessage] = useState('');
-  const { cartCount } = useCart(customerId);
+  
+  // Use customer id if logged in
+  const customerId = customer?.id;
+  const { cartCount } = useCart(customerId || 1); // fallback to prevent errors when hook renders
+
+  if (loading) {
+    return <div className="text-center mt-5"><span className="spinner-border text-primary"></span></div>;
+  }
+
+  if (!customer) {
+    return <LoginPage />;
+  }
 
   const handleAddToCart = async (productId, quantity) => {
     try {
@@ -32,24 +42,30 @@ function App() {
   return (
     <Router>
       <div className="app">
-        <nav className="navbar">
-          <div className="nav-container">
-            <Link to="/" className="logo">QuickShop</Link>
+        <nav className="navbar border-bottom shadow-sm">
+          <div className="nav-container d-flex justify-content-between align-items-center w-100 px-4 py-2">
+            <Link to="/" className="logo text-decoration-none fw-bold fs-4 text-primary">QuickShop</Link>
             
-            <div className="nav-links">
-              <Link to="/">Shop</Link>
-              <Link to="/cart" className="cart-link">
+            <div className="nav-links d-flex align-items-center gap-4">
+              <Link to="/" className="text-decoration-none text-dark fw-semibold">Shop</Link>
+              <Link to="/cart" className="cart-link text-decoration-none text-dark fw-semibold position-relative">
                 Cart
-                {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+                {cartCount > 0 && <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{fontSize: '0.65rem'}}>{cartCount}</span>}
               </Link>
-              <Link to="/orders">Orders</Link>
+              <Link to="/orders" className="text-decoration-none text-dark fw-semibold">Orders</Link>
+              
+              <div className="d-flex align-items-center gap-2 border-start ps-3 ms-2">
+                <span className="text-muted small">👤 {customer.name || customer.email.split('@')[0]}</span>
+                <button className="btn btn-sm btn-danger rounded-pill px-3 fw-bold" onClick={logout}>Sign Out</button>
+              </div>
             </div>
           </div>
         </nav>
 
         {cartMessage && (
-          <div className="notification-message">
+          <div className="alert alert-success m-3 text-center rounded-3 shadow-sm py-2">
             {cartMessage}
+            <button type="button" className="btn-close btn-sm float-end" onClick={() => setCartMessage('')}></button>
           </div>
         )}
 
@@ -66,11 +82,19 @@ function App() {
           </Routes>
         </main>
 
-        <footer className="footer">
-          <p>&copy; 2026 QuickShop. Powered by ProductERP</p>
+        <footer className="footer text-center py-4 bg-light mt-auto border-top text-muted">
+          <p className="mb-0 small fw-semibold">&copy; 2026 QuickShop. Powered by ProductERP</p>
         </footer>
       </div>
     </Router>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

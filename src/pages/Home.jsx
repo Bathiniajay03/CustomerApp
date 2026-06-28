@@ -32,9 +32,9 @@ const Home = ({ customerId, onAddToCart }) => {
     ];
   }, [products]);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const response = await productsApi.getAll(searchQuery, category);
       setProducts(response.data);
       setError(null);
@@ -45,8 +45,17 @@ const Home = ({ customerId, onAddToCart }) => {
     }
   }, [searchQuery, category]);
 
+  // Auto-fetch products on mount and when filters change
   useEffect(() => {
     fetchProducts();
+  }, [fetchProducts]);
+
+  // Auto-refresh every 15 seconds to pick up new items added from ERP (silent - no loading spinner)
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchProducts(false);
+    }, 15000);
+    return () => clearInterval(intervalId);
   }, [fetchProducts]);
 
   const handleSearch = (e) => {
@@ -126,6 +135,14 @@ const Home = ({ customerId, onAddToCart }) => {
               }}
             >
               Clear filters
+            </button>
+            <button
+              type="button"
+              className="clear-filters-btn"
+              onClick={() => fetchProducts()}
+              style={{ marginLeft: '8px' }}
+            >
+              Refresh
             </button>
           </div>
 
