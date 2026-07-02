@@ -4,6 +4,7 @@ import { customersApi } from '../services/api';
 
 const LoginPage = () => {
   const { login } = useAuth();
+  const [storeName, setStoreName] = useState('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState(1);
@@ -13,10 +14,17 @@ const LoginPage = () => {
 
   const handleRequestOtp = async (e) => {
     e.preventDefault();
+    if (!storeName) {
+      setError('Please enter a Store Name');
+      return;
+    }
     if (!email) {
       setError('Please enter your email address');
       return;
     }
+    
+    // Save tenant name so API calls route correctly
+    localStorage.setItem('customer_tenant_name', storeName);
     
     setLoading(true);
     setError('');
@@ -27,7 +35,7 @@ const LoginPage = () => {
       setStep(2);
       setMessage('OTP has been sent to your email (Check terminal).');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to request OTP');
+      setError(err.response?.data?.message || 'Failed to request OTP. Make sure the Store Name is correct.');
     } finally {
       setLoading(false);
     }
@@ -69,6 +77,18 @@ const LoginPage = () => {
             
             {step === 1 ? (
               <form onSubmit={handleRequestOtp}>
+                <div className="mb-3">
+                  <label className="form-label text-muted small fw-semibold">Store Name</label>
+                  <input
+                    type="text"
+                    className="form-control form-control-lg bg-light border-0"
+                    placeholder="e.g. ajay"
+                    value={storeName}
+                    onChange={(e) => setStoreName(e.target.value)}
+                    disabled={loading}
+                    required
+                  />
+                </div>
                 <div className="mb-4">
                   <label className="form-label text-muted small fw-semibold">Email Address</label>
                   <input

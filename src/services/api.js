@@ -141,9 +141,9 @@ console.log('Customer App using API Base URL:', baseURL);
 // -------------------- AXIOS INSTANCE --------------------
 const api = axios.create({
   baseURL,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true'
   },
 });
 
@@ -152,6 +152,12 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  const tenantName = localStorage.getItem('customer_tenant_name');
+  if (tenantName) {
+    config.headers['X-Tenant-Name'] = tenantName;
+  }
+  
   return config;
 });
 
