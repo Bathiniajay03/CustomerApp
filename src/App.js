@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
 import ProductDetailsPage from './pages/ProductDetailsPage';
@@ -13,10 +13,33 @@ import './App.css';
 function AppContent() {
   const { customer, loading, logout } = useAuth();
   const [cartMessage, setCartMessage] = useState('');
+  const [tenantDetails, setTenantDetails] = useState({
+    name: 'QuickShop',
+    primaryColor: '#3b82f6'
+  });
   
   // Use customer id if logged in
   const customerId = customer?.id;
-  const { cartCount } = useCart(customerId || 1); // fallback to prevent errors when hook renders
+  const { cartCount } = useCart(customerId);
+
+  useEffect(() => {
+    const fetchTenantDetails = async () => {
+      try {
+        const { customersApi } = await import('./services/api');
+        const res = await customersApi.getTenantDetails();
+        if (res.data) {
+          setTenantDetails(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch tenant branding:', err);
+      }
+    };
+
+    const tenantName = localStorage.getItem('customer_tenant_name');
+    if (tenantName) {
+      fetchTenantDetails();
+    }
+  }, [customer]);
 
   if (loading) {
     return <div className="text-center mt-5"><span className="spinner-border text-primary"></span></div>;
@@ -39,12 +62,52 @@ function AppContent() {
     }
   };
 
+  const primaryColor = tenantDetails?.primaryColor || '#3b82f6';
+  const customStyles = `
+    .btn-primary { background-color: ${primaryColor} !important; border-color: ${primaryColor} !important; }
+    .text-primary { color: ${primaryColor} !important; }
+    .btn-outline-primary { color: ${primaryColor} !important; border-color: ${primaryColor} !important; }
+    .btn-outline-primary:hover { background-color: ${primaryColor} !important; color: white !important; }
+    .navbar .logo { color: ${primaryColor} !important; }
+    
+    /* Dynamic Theme for Storefront Hero Card */
+    .hero-card { 
+      background: linear-gradient(135deg, ${primaryColor} 0%, #17253f 60%, #0d121f 100%) !important; 
+      color: #ffffff !important;
+    }
+    .hero-card h1, 
+    .hero-card p, 
+    .hero-card .hero-eyebrow {
+      color: #ffffff !important;
+    }
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    }
+    .stat-pill span, 
+    .stat-pill strong {
+      color: #ffffff !important;
+    }
+    .category-chip.active {
+      background: ${primaryColor} !important;
+      border-color: ${primaryColor} !important;
+      color: #ffffff !important;
+    }
+    .search-btn {
+      background: ${primaryColor} !important;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+  `;
+
   return (
     <Router>
       <div className="app">
+        <style>{customStyles}</style>
         <nav className="navbar border-bottom shadow-sm">
           <div className="nav-container d-flex justify-content-between align-items-center w-100 px-4 py-2">
-            <Link to="/" className="logo text-decoration-none fw-bold fs-4 text-primary">QuickShop</Link>
+            <Link to="/" className="logo text-decoration-none fw-bold fs-4 text-primary">
+              {tenantDetails?.name || 'QuickShop'}
+            </Link>
             
             <div className="nav-links d-flex align-items-center gap-4">
               <Link to="/" className="text-decoration-none text-dark fw-semibold">Shop</Link>
@@ -71,7 +134,7 @@ function AppContent() {
 
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<Home customerId={customerId} onAddToCart={handleAddToCart} />} />
+            <Route path="/" element={<Home customerId={customerId} onAddToCart={handleAddToCart} tenantDetails={tenantDetails} />} />
             <Route
               path="/product/:productId"
               element={<ProductDetailsPage customerId={customerId} onAddToCart={handleAddToCart} />}
@@ -83,7 +146,7 @@ function AppContent() {
         </main>
 
         <footer className="footer text-center py-4 bg-light mt-auto border-top text-muted">
-          <p className="mb-0 small fw-semibold">&copy; 2026 QuickShop. Powered by ProductERP</p>
+          <p className="mb-0 small fw-semibold">&copy; 2026 {tenantDetails?.name || 'QuickShop'}. Powered by ProductERP</p>
         </footer>
       </div>
     </Router>

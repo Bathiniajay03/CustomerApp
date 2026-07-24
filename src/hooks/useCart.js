@@ -10,6 +10,9 @@ export const useCart = (customerId) => {
   const fetchCart = useCallback(async () => {
     if (!customerId) return;
     
+    const token = localStorage.getItem('customer_token');
+    if (!token) return;
+    
     setLoading(true);
     try {
       const response = await cartApi.get(customerId);

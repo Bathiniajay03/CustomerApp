@@ -120,9 +120,8 @@
 
 import axios from 'axios';
 
-// -------------------- BASE URL CONFIG --------------------
 const localBaseURL = 'http://localhost:5157/api';
-// const localBaseURL = 'https://intermetameric-codi-unexasperating.ngrok-free.dev/api';
+const productionBaseURL = 'https://erpbackend-9llg.onrender.com/api';
 const ngrokBaseURL = process.env.REACT_APP_API_URL;
 
 const isBrowser = typeof window !== 'undefined';
@@ -134,7 +133,7 @@ const isLocalHost =
 // decide environment
 const baseURL = isLocalHost
   ? localBaseURL
-  : (ngrokBaseURL || localBaseURL);
+  : (ngrokBaseURL || productionBaseURL);
 
 console.log('Customer App using API Base URL:', baseURL);
 
@@ -161,6 +160,25 @@ api.interceptors.request.use((config) => {
   
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      const { status, data } = error.response;
+      // If unauthorized, or customer not found due to a database seed reset
+      if (status === 401 || (status === 404 && data?.message?.toLowerCase().includes("customer not found"))) {
+        console.warn("Stale customer session detected. Clearing storage and reloading...");
+        localStorage.removeItem("customer_token");
+        localStorage.removeItem("customer_id");
+        localStorage.removeItem("customer_email");
+        localStorage.removeItem("customer_name");
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 // -------------------- PRODUCTS API --------------------
 export const productsApi = {
@@ -194,6 +212,9 @@ export const customersApi = {
 
   getById: (id) =>
     api.get(`/public/customers/${id}`),
+
+  getTenantDetails: () =>
+    api.get('/public/tenant/details'),
 };
 
 // -------------------- CART API --------------------

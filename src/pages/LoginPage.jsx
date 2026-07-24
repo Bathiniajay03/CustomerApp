@@ -15,7 +15,7 @@ const LoginPage = () => {
   const handleRequestOtp = async (e) => {
     e.preventDefault();
     if (!storeName) {
-      setError('Please enter a Store Name');
+      setError('Please enter a Company Code');
       return;
     }
     if (!email) {
@@ -31,11 +31,16 @@ const LoginPage = () => {
     setMessage('');
     
     try {
-      await customersApi.requestOtp(email);
+      const res = await customersApi.requestOtp(email);
       setStep(2);
-      setMessage('OTP has been sent to your email (Check terminal).');
+      if (res.data && res.data.devOtp) {
+        setOtp(res.data.devOtp);
+        setMessage(`OTP received: ${res.data.devOtp} (Auto-filled for testing)`);
+      } else {
+        setMessage('OTP has been sent to your email.');
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to request OTP. Make sure the Store Name is correct.');
+      setError(err.response?.data?.message || 'Failed to request OTP. Make sure the Company Code is correct.');
     } finally {
       setLoading(false);
     }
@@ -78,11 +83,11 @@ const LoginPage = () => {
             {step === 1 ? (
               <form onSubmit={handleRequestOtp}>
                 <div className="mb-3">
-                  <label className="form-label text-muted small fw-semibold">Store Name</label>
+                  <label className="form-label text-muted small fw-semibold">Company Code</label>
                   <input
                     type="text"
                     className="form-control form-control-lg bg-light border-0"
-                    placeholder="e.g. ajay"
+                    placeholder="e.g. wipro"
                     value={storeName}
                     onChange={(e) => setStoreName(e.target.value)}
                     disabled={loading}

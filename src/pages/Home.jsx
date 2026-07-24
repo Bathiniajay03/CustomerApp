@@ -15,7 +15,7 @@ const QUICK_CATEGORIES = [
   'Household'
 ];
 
-const Home = ({ customerId, onAddToCart }) => {
+const Home = ({ customerId, onAddToCart, tenantDetails }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -67,10 +67,10 @@ const Home = ({ customerId, onAddToCart }) => {
     <div className="home-page">
       <section className="hero-card">
         <div className="hero-copy">
-          <div className="hero-eyebrow">Quick commerce</div>
-          <h1>Daily essentials, delivered fast</h1>
+          <div className="hero-eyebrow">{tenantDetails?.storefrontEyebrow || "Quick commerce"}</div>
+          <h1>{tenantDetails?.storefrontTitle || "Daily essentials, delivered fast"}</h1>
           <p>
-            Browse fresh groceries, snacks, personal care, and household items from your live ERP catalog.
+            {tenantDetails?.storefrontDescription || "Browse fresh groceries, snacks, personal care, and household items from your live ERP catalog."}
           </p>
         </div>
 
